@@ -1,12 +1,3 @@
-# eletron + react开发到部署
-
-## 构建开发目录
-
-使用create-react-app进行react的构建
-
-在根目录下新建main.js文件
-
-```js
 
 const {
   app,
@@ -26,7 +17,7 @@ function createWindow() {
     height: 600,
     webPreferences: {
       nodeIntegration: true,
-      webSecurity: false  //跨域
+      webSecurity: false
     }
   })
  
@@ -49,7 +40,7 @@ function createWindow() {
 // 创建浏览器窗口时，调用这个函数。
 // 部分 API 在 ready 事件触发后才能使用。
 app.on('ready', () => {
-  require('./electron/menu.js') //目录文件
+  require('./electron/menu.js')
   createWindow()
 })
  
@@ -72,36 +63,3 @@ app.on('activate', () => {
  
 // 在这个文件中，你可以续写应用剩下主进程代码。
 // 也可以拆分成几个文件，然后用 require 导入。
-```
-
-更改package.json
-```js
-{
-  "main": "main.js",
-  "scripts": {
-    "electron": "electron ."
-  }
-}
-```
-
-使用**npm run electron**跑起服务
-
-## 开发过程
-
-1. 使用shell模块以默认方式打开文件
-
-```js
-const shell = require('shell)
-shell.openItem(fullPath)
-```
-
-2. 使用remote在组件中引入electron
-
-除了main.js为主进程以外 其他页面均为渲染进程 需要使用remote模块调用主进程的方法
-```js
-const {shell} = require('electron')
-import {shell} from 'electron'
-// 都无效时 可以试试
-
-const {shell} = window.require('electron').remote
-```
