@@ -105,3 +105,29 @@ import {shell} from 'electron'
 
 const {shell} = window.require('electron').remote
 ```
+
+3. 使用react-app-rewired修改webpack配置
+
+在没有改动初始文件的时候 可以使用**npm run eject**来得到webpack.config.js文件
+
+```js
+//npm i react-app-rewired -S-D
+//修改package.json
+"start": "react-app-rewired start"
+
+//根目录新建config-overrides.js 配置webpack
+const path = require('path')
+
+function resolve (dir) {
+  return path.join(__dirname, '.', dir)
+}
+
+module.exports = function override(config, env) {
+
+  config.resolve.alias = {
+    "@": resolve('src')
+  }
+
+  return config;
+}
+```
