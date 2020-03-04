@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import getFiles from '@/script/getProgram'
+import { getFiles, fixVideoImg, fixVideoDuration } from '@/script/getProgram'
+import { getVideoDuration } from '@/common/tool.js'
 import { Card, Input } from 'antd';
 import delProgram from '@/script/delProgram'
 
@@ -17,11 +18,27 @@ function Index() {
   useEffect(() => {
     (async () => {
       const files = await getFiles()
-      console.log(files)
       setFiles(files)
       setShow(files)
+
+      // const fixDurationFiles = await fixVideoDuration(files)
+      // setFiles([...fixDurationFiles])
+      // setShow([...fixDurationFiles])
+      // console.log(fileArr)
+
+      // const fixImgFiles = await fixVideoImg(fixDurationFiles)
+      // setFiles(fixImgFiles)
+      // setShow(fixImgFiles)
     })()
   }, [])
+
+  function addDuration(files, item, duration) {
+    const index = files.findIndex(x => {
+      return x.id === item.id
+    })
+    files[index].duration = duration
+    return files
+  }
 
   function playVideo(info) {
     shell.openItem(info.file)
@@ -56,6 +73,10 @@ function Index() {
     })
 
     setShow(filterVal)
+  }
+
+  function filesSorb() {
+    
   }
 
   return (

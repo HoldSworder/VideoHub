@@ -3,6 +3,9 @@ import { getVideoBase64, getVideoDuration } from '@/common/tool.js'
 
 const path = window.require('path')
 const fse = window.require('fs-extra')
+const os = window.require('os')
+const cpuNum = os.cpus().length
+
 const videoType = ['mp4', 'avi', 'rmvb', 'flv', 'wmv', 'mov', 'mtv', 'amv']
 // const imgType = ['jpg', 'png']
 const videoFix = fixType(videoType)
@@ -21,7 +24,7 @@ async function getAllVideo(filePath = basePath, res = resArr) {
     const stats = await fse.stat(childPath)
     if(stats.isDirectory()) await getAllVideo(childPath)
     if(stats.isFile()) {
-      const extName = path.extname(item)
+      const extName = path.extname(item).toLowerCase()
       const baseName = path.basename(item)
       
       if(videoFix.includes(extName)) {
@@ -70,7 +73,8 @@ async function wallpaperVideo({res, filePath, childPath, stats}) {
       title: content.title,
       menu: filePath,
       id: index,
-      create: stats.birthtimeMs
+      create: stats.birthtimeMs,
+      stats
     })
     index ++
   }
@@ -91,7 +95,8 @@ async function video({res, filePath, childPath, baseName, stats}) {
       menu: filePath,
       title: baseName,
       img: '',
-      create: stats.birthtimeMs
+      create: stats.birthtimeMs,
+      stats
     })
   }
 
@@ -103,23 +108,32 @@ function fixType(type) {
   return type.map(x => {return "." + x})
 }
 
-async function fixVideo(data) {
+async function fixVideoDuration(data) {
+  let p = []
   for (const item of data) {
-    const duration = await getVideoDuration(item.file)
-    
-    item.duration = duration
-    console.log(item.duration)
+    const func = getVideoDuration(item.file, item)
+    p.push(func)
+    // console.log(p)
+    // item.duration = await func
+    // func.then(res => {
+    //   item.duration = res
+    // })
   }
+  // console.log(p)
+  console.log(p)
+  await Promise.allSettled(p)
+  return data
 }
 
-async function main() {
+
+async function getFiles() {
   const data = await getAllVideo()
-  fixVideoImg(data)
-  fixVideo(data)
+  // fixVideoImg(data)
+  // fixVideo(data)
 
   console.log('所有视频的数量为', videoNumber)
   console.log('wallpaper视频的数量为', wallpaperNumber)
   return data
 }
 
-export default main
+export { getFiles,  fixVideoImg, fixVideoDuration }

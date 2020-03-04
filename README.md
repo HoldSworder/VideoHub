@@ -131,3 +131,7 @@ module.exports = function override(config, env) {
   return config;
 }
 ```
+
+## 遇到的坑
+
+1. 视频名中带有'#'的视频会提示无法找到 只能跳过处理
