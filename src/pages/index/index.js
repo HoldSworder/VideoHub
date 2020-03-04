@@ -21,9 +21,9 @@ function Index() {
       setFiles(files)
       setShow(files)
 
-      // const fixDurationFiles = await fixVideoDuration(files)
-      // setFiles([...fixDurationFiles])
-      // setShow([...fixDurationFiles])
+      const fixDurationFiles = await fixVideoDuration(files)
+      setFiles([...fixDurationFiles])
+      setShow([...fixDurationFiles])
       // console.log(fileArr)
 
       // const fixImgFiles = await fixVideoImg(fixDurationFiles)
