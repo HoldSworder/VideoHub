@@ -7,6 +7,7 @@ function resolve (dir) {
 module.exports = function override(config, env) {
 
   config.resolve.alias = {
+    "~": __dirname,
     "@": resolve('src')
   }
 

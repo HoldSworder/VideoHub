@@ -1,22 +1,24 @@
 import basePath from '@/common/basePath.js'
-import { getVideoBase64, getVideoDuration } from '@/common/tool.js'
+import getVideoDuration from '@/script/fixVideo.js'
+// import PromiseLimit from '@/script/PromiseLimit.js'
+import { saveData, readData } from '@/script/handleData.js'
 
 const path = window.require('path')
 const fse = window.require('fs-extra')
-const os = window.require('os')
-const cpuNum = os.cpus().length
 
 const videoType = ['mp4', 'avi', 'rmvb', 'flv', 'wmv', 'mov', 'mtv', 'amv']
-// const imgType = ['jpg', 'png']
 const videoFix = fixType(videoType)
 const videoArr = []
-const resArr = []
-let index = 0
+let resArr = readData()
+let index = resArr.length
 
 let videoNumber = 0
 let wallpaperNumber = 0
 
+
+
 async function getAllVideo(filePath = basePath, res = resArr) {
+
   const fileArr = await fse.readdir(filePath)
 
   for (const item of fileArr) {
@@ -36,22 +38,23 @@ async function getAllVideo(filePath = basePath, res = resArr) {
       }
     } 
   }
-  
-
   return res
 }
 
-async function fixVideoImg(data) {
-  for (const item of data) {
-    if(item.img === '') {
-      const filePath = item.file
-      const width = 240
-      const height = 240
-      const base64 = await getVideoBase64({width, height, url: filePath})
-      item.img = base64
-    }
-  }
-}
+// async function fixVideoImg(data) {
+//   const p = []
+//   for (const item of data) {
+//     if(item.img === '') {
+//       const filePath = item.file
+//       const width = 240
+//       const height = 240
+//       const base64 = await getVideoBase64({width, height, url: filePath})
+//       p.push(base64)
+//       item.img = base64
+//     }
+//   }
+//   await Promise.allSettled(p)
+// }
 
 async function wallpaperVideo({res, filePath, childPath, stats}) {
   const content = JSON.parse(await fse.readFile(childPath))
@@ -65,6 +68,15 @@ async function wallpaperVideo({res, filePath, childPath, stats}) {
   if(target) {
     target.img = path.join(filePath ,content.preview)
     target.title = content.title
+
+    target.name = content.title
+    target.img = path.join(filePath ,content.preview)
+    target.file = path.join(filePath ,content.file)
+    target.title = content.title
+    target.menu = filePath
+    target.id = index
+    target.create = stats.birthtimeMs
+    target.stats = target
   }else {
     res.push({
       name: content.title,
@@ -109,31 +121,20 @@ function fixType(type) {
 }
 
 async function fixVideoDuration(data) {
-  let p = []
   for (const item of data) {
-    const func = getVideoDuration(item.file, item)
-    p.push(func)
-    // console.log(p)
-    // item.duration = await func
-    // func.then(res => {
-    //   item.duration = res
-    // })
+    const func = await getVideoDuration({item})
   }
-  // console.log(p)
-  console.log(p)
-  await Promise.allSettled(p)
+  // const durationLimit = new PromiseLimit(10, getVideoDuration)
+  // const tets = await durationLimit.start(data)
   return data
 }
 
-
 async function getFiles() {
   const data = await getAllVideo()
-  // fixVideoImg(data)
-  // fixVideo(data)
-
+  // saveData(data)
   console.log('所有视频的数量为', videoNumber)
   console.log('wallpaper视频的数量为', wallpaperNumber)
   return data
 }
 
-export { getFiles,  fixVideoImg, fixVideoDuration }
+export { getFiles, fixVideoDuration }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { getFiles, fixVideoImg, fixVideoDuration } from '@/script/getProgram'
+import { getFiles, fixVideoDuration, saveVideoData } from '@/script/getProgram'
 import { getVideoDuration } from '@/common/tool.js'
 import { Card, Input } from 'antd';
 import delProgram from '@/script/delProgram'
@@ -21,9 +21,10 @@ function Index() {
       setFiles(files)
       setShow(files)
 
-      const fixDurationFiles = await fixVideoDuration(files)
-      setFiles([...fixDurationFiles])
-      setShow([...fixDurationFiles])
+
+      // const fixDurationFiles = await fixVideoDuration(files)
+      // setFiles([...fixDurationFiles])
+      // setShow([...fixDurationFiles])
       // console.log(fileArr)
 
       // const fixImgFiles = await fixVideoImg(fixDurationFiles)
