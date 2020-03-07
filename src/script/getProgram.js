@@ -1,21 +1,41 @@
 import basePath from '@/common/basePath.js'
 import getVideoDuration from '@/script/fixVideo.js'
-// import PromiseLimit from '@/script/PromiseLimit.js'
 import { saveData, readData } from '@/script/handleData.js'
+import { genId } from '@/common/tool.js'
 
 const path = window.require('path')
 const fse = window.require('fs-extra')
 
 const videoType = ['mp4', 'avi', 'rmvb', 'flv', 'wmv', 'mov', 'mtv', 'amv']
 const videoFix = fixType(videoType)
-const videoArr = []
-let resArr = readData()
-let index = resArr.length
+const dataObj = readData()
+let resArr = [...dataObj.videoFiles, ...dataObj.otherFiles]
+// let option = dataObj.option
 
 let videoNumber = 0
 let wallpaperNumber = 0
 
-
+function checkFiles(res = resArr) {
+  res.forEach(async(x, index, arr) => {
+    try {
+      await fse.access(x.file)
+    } catch (error) {
+      arr.splice(index, 1)
+      console.log(error)
+    }
+  })
+  return res
+  // return res.filter(async x => {
+  //   if(x.title === '沸羊羊合集2') debugger
+  //   try {
+  //     await fse.access(x.file)
+  //     return true
+  //   } catch (error) {
+  //     console.log(error)
+  //     return false
+  //   }
+  // })
+}
 
 async function getAllVideo(filePath = basePath, res = resArr) {
 
@@ -41,26 +61,53 @@ async function getAllVideo(filePath = basePath, res = resArr) {
   return res
 }
 
-// async function fixVideoImg(data) {
-//   const p = []
-//   for (const item of data) {
-//     if(item.img === '') {
-//       const filePath = item.file
-//       const width = 240
-//       const height = 240
-//       const base64 = await getVideoBase64({width, height, url: filePath})
-//       p.push(base64)
-//       item.img = base64
-//     }
-//   }
-//   await Promise.allSettled(p)
-// }
-
 async function wallpaperVideo({res, filePath, childPath, stats}) {
   const content = JSON.parse(await fse.readFile(childPath))
   const type = String(content.type).toLowerCase()
-  if(type !== 'video') return
+  if(type !== 'video') {
+    res.push({
+      img: path.join(filePath, content.preview),
+      file: path.join(filePath, content.file || ''),
+      id: genId(),
+      create: stats.birthtimeMs,
+      title: content.title,
+      menu: filePath,
+      name: content.title,
+      canplay: 2,
+      duration: '非视频文件格式',
+      stats: {...stats}
+    })
+    return
+  }
+
   const file = path.join(filePath ,content.file)
+
+  //测试描述文件地址是否存在
+  try {
+    await fse.access(file)
+  } catch (error) {
+    console.log('文件描述地址错误', error)
+    return
+  }
+
+  //json描述文件非视频文件
+  if(!videoFix.includes(path.extname(file).toLowerCase())) {
+    console.log(content.title, '格式错误')
+    res.push({
+      name: content.title,
+      img: path.join(filePath, content.preview),
+      file: path.join(filePath, content.file),
+      title: content.title,
+      menu: filePath,
+      id: genId(),
+      create: stats.birthtimeMs,
+      stats: {...stats},
+      canplay: 2,
+      duration: '格式错误 无法播放'
+    })
+    return
+  }
+
   const target = res.find(x => {
     return x.file === file
   })
@@ -70,25 +117,19 @@ async function wallpaperVideo({res, filePath, childPath, stats}) {
     target.title = content.title
 
     target.name = content.title
-    target.img = path.join(filePath ,content.preview)
-    target.file = path.join(filePath ,content.file)
-    target.title = content.title
-    target.menu = filePath
-    target.id = index
     target.create = stats.birthtimeMs
-    target.stats = target
+    target.wallpaper = true
   }else {
     res.push({
       name: content.title,
-      img: path.join(filePath ,content.preview),
-      file: path.join(filePath ,content.file),
+      img: path.join(filePath, content.preview),
+      file: path.join(filePath, content.file),
       title: content.title,
       menu: filePath,
-      id: index,
+      id: genId(),
       create: stats.birthtimeMs,
-      stats
+      stats: {...stats}
     })
-    index ++
   }
   wallpaperNumber ++
 }
@@ -103,16 +144,15 @@ async function video({res, filePath, childPath, baseName, stats}) {
     res.push({
       name: baseName,
       file: childPath,
-      id: index,
+      id: genId(),
       menu: filePath,
       title: baseName,
       img: '',
       create: stats.birthtimeMs,
-      stats
+      stats: {...stats}
     })
   }
 
-  index ++
   videoNumber ++
 }
 
@@ -120,21 +160,25 @@ function fixType(type) {
   return type.map(x => {return "." + x})
 }
 
-async function fixVideoDuration(data) {
+async function fixVideoInfo(data) {
   for (const item of data) {
-    const func = await getVideoDuration({item})
+    if(item.duration) continue
+    await getVideoDuration({item})
   }
   // const durationLimit = new PromiseLimit(10, getVideoDuration)
   // const tets = await durationLimit.start(data)
+  saveData(data, 'data')
   return data
 }
 
 async function getFiles() {
-  const data = await getAllVideo()
-  // saveData(data)
+  const checked = checkFiles()
+  const data = await getAllVideo(basePath, checked)
+  
   console.log('所有视频的数量为', videoNumber)
   console.log('wallpaper视频的数量为', wallpaperNumber)
+  console.log(data)
   return data
 }
 
-export { getFiles, fixVideoDuration }
+export { getFiles, fixVideoInfo }

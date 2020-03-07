@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react'
-import { getFiles, fixVideoDuration, saveVideoData } from '@/script/getProgram'
-import { getVideoDuration } from '@/common/tool.js'
-import { Card, Input } from 'antd';
+import { getFiles, fixVideoInfo, saveVideoData } from '@/script/getProgram'
+import { Card, Input, Select, notification, Modal } from 'antd'
 import delProgram from '@/script/delProgram'
+import sort from '@/script/sort.js'
+
 
 import './index.css'
 
+const InputGroup = Input.Group;
 const {remote} = window.require('electron')
 const {shell, Menu} = remote 
 const { Meta } = Card
+const { Option } = Select
 
 
 function Index() {
@@ -21,25 +24,15 @@ function Index() {
       setFiles(files)
       setShow(files)
 
-
-      // const fixDurationFiles = await fixVideoDuration(files)
-      // setFiles([...fixDurationFiles])
-      // setShow([...fixDurationFiles])
-      // console.log(fileArr)
-
-      // const fixImgFiles = await fixVideoImg(fixDurationFiles)
-      // setFiles(fixImgFiles)
-      // setShow(fixImgFiles)
+      fixVideoLoading('open')
+      const fixDurationFiles = await fixVideoInfo(files)
+      setFiles(fixDurationFiles)
+      setShow(fixDurationFiles.filter(x => {
+        return x.canplay === 1
+      }))
+      fixVideoLoading('close')
     })()
   }, [])
-
-  function addDuration(files, item, duration) {
-    const index = files.findIndex(x => {
-      return x.id === item.id
-    })
-    files[index].duration = duration
-    return files
-  }
 
   function playVideo(info) {
     shell.openItem(info.file)
@@ -56,6 +49,11 @@ function Index() {
       label: '资源管理器中打开',
       click() {
         shell.showItemInFolder(info.file)
+      }
+    }, {
+      label: '属性',
+      click() {
+        setInfo(info)
       }
     }]
 
@@ -76,16 +74,71 @@ function Index() {
     setShow(filterVal)
   }
 
-  function filesSorb() {
-    
+  function sortFiles(value) {
+    if(value === 'default') {
+      setShow(fileArr)
+      return
+    }
+    setShow(sort(value, fileArr))
+  }
+
+  function fixVideoLoading(type) {
+    const key = 'fixVideo'
+    if(type === 'open') {
+      notification['info']({
+        message: '获取视频信息中...',
+        description: '获取视频时长及缩略图片',
+        key,
+        duration: null,
+        placement: "bottomRight"
+      })
+    }else {
+      notification['success']({
+        message: '获取视频信息成功',
+        key,
+        duration: 3,
+        placement: "bottomRight"
+      })
+    }
+  }
+
+  function setInfo(info) {
+    Modal.info({
+      title: `${info.title}的属性`,
+      content: (
+        <div>
+          <p>文件地址：{info.file}</p>
+          <p>id：{info.id}</p>
+          <p>文件夹地址：{info.menu}</p>
+          <p>时长：{info.duration}</p>
+        </div>
+      ),
+      onOk() {},
+    });
   }
 
   return (
     <div className="container">
-      <Input 
-        placeholder="输入关键字进行搜索"
-        onChange={searchVideo}
-        style={{ width: 200 }} />
+      <div className="header">
+        <Input 
+          placeholder="输入关键字进行搜索"
+          onChange={searchVideo}
+          style={{ width: 200 }} />
+
+        <InputGroup
+          style={{ width: 'auto' }}>
+          <Select defaultValue="default"
+            onChange={sortFiles}>
+            <Option value="default">默认排序</Option>
+            <Option value="TIME POSITIVE">日期升序</Option>
+            <Option value="TIME NEGATIVE">日期降序</Option>
+            <Option value="DURATION POSITIVE">时长升序</Option>
+            <Option value="DURATION NEGATIVE">时长降序</Option>
+            <Option value="CAN NOT PLAY">特殊文件</Option>
+            <Option value="ERROR">错误文件</Option>
+          </Select>
+        </InputGroup>
+      </div>
       <div className="videoBox">
         {
           showArr.map((item, index) => {

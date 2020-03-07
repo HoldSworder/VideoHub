@@ -33,7 +33,11 @@ function getVideoBase64 ({item, width = 240, height = 240}) {
 async function getVideoDuration({item, width = 240, height = 240}) {
   const url = item.file
   if(!fsp.access(url)) return
-  if(url.includes('#')) return
+  if(url.includes('#')) {
+    item.duration = '特殊字符 无法解析'
+    item.canplay = 2
+    return
+  }
   return new Promise((resolve, reject) => {
     const video = document.createElement('video')
     video.setAttribute('crossOrigin', 'anonymous')
@@ -50,17 +54,20 @@ async function getVideoDuration({item, width = 240, height = 240}) {
         const data = canvas.toDataURL('image/jpeg')
         item.img = data
 
-        const duration = transTime(video.duration)
+        const durationOrigin = parseInt(video.duration)
+        const duration = transTime(durationOrigin)
         item.duration = duration
-        item.canplay = true
+        item.durationOrigin = durationOrigin
+        item.canplay = 1
         resolve()
       })
     }else {
       video.addEventListener('durationchange', function() {
-          const duration = video.duration
+          const duration = parseInt(video.duration)
           const data = transTime(duration)
           item.duration = data
-          item.canplay = true
+          item.durationOrigin = duration
+          item.canplay = 1
           console.log(data)
           resolve() 
       })
@@ -70,7 +77,7 @@ async function getVideoDuration({item, width = 240, height = 240}) {
     })
   }).catch(err => {
     item.duration = '格式错误 无法播放'
-    item.canplay = false
+    item.canplay = 0
     console.log(err)
   })
 }

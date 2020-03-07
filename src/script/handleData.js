@@ -5,34 +5,43 @@ const fsp = window.require('fs').promises
 const path = window.require('path')
 const dataPath = path.resolve('./data/data.json')
 
-async function saveData(newData) {
-  debugger
-  let data = await readData()
-  const newArr = [...data, ...newData]
-  console.log(newArr)
-  const str = JSON.stringify(newArr)
-  console.log(str)
+const layout = {
+  videoFiles: [],
+  otherFiles: [],
+  option: {}
+}
+
+async function saveData(newData, type) {
+  let data = {...layout}
+
+  switch(type) {
+    case 'data':
+      data.videoFiles = newData.filter(x => {
+        return x.canplay === 1
+      })
+      data.otherFiles = newData.filter(x => {
+        return x.canplay === 0 || x.canplay === 2
+      })
+      break
+    case 'option': 
+      data.option = newData
+  }
+  const str = JSON.stringify(data)
   try {
-    // debugger
      fsp.writeFile(dataPath, str, 'utf-8')
-    //  fs.writeFile(dataPath, str, res => {
-    //    console.log(res)
-    //  })
   } catch (error) {
-    // debugger
     throw error
   }
 }
 
 function readData() {
-  // debugger
   let data
   try {
     data = fs.readFileSync(dataPath, 'utf-8')
-    if(!isJSON(data)) fs.writeFileSync(dataPath, JSON.stringify([]), 'utf-8')
+    if(!isJSON(data)) fs.writeFileSync(dataPath, JSON.stringify(layout), 'utf-8')
   }catch (err) {
-    fsp.writeFile(dataPath, JSON.stringify([]), 'utf-8')
-    data = '[]'
+    fsp.writeFile(dataPath, JSON.stringify(layout), 'utf-8')
+    data = JSON.stringify(layout)
     console.log(err) 
   }
   return JSON.parse(data)
