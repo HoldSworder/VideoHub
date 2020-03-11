@@ -132,6 +132,23 @@ module.exports = function override(config, env) {
 }
 ```
 
+4. 获取当前窗口
+
+```js
+const focuseWin = webContents.getFocusedWebContents()
+focuseWin.webContents.openDevTools()
+```
+
+
 ## 遇到的坑
 
 1. 视频名中带有'#'的视频会提示无法找到 只能跳过处理
+
+2. react中的重复渲染问题
+
+在react中使用useState定义复杂对象时（对象、数组），改变state会导致state重新指向新的对象，导致页面依赖的dom重新刷新。
+
+使用immer、useImmer替代useState可以解决这个问题
+
+3. react-electron中ipcRenderer重复callback的问题
+

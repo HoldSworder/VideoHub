@@ -5,7 +5,27 @@ const {
 } = require('electron')
 const path = require('path')
 const url = require('url')
- 
+const ipc = require('electron').ipcMain
+
+// let watchList = []
+
+// ipc.on('setWatch', function(event, arg) {
+//   if(!arg) {
+//     event.sender.send('watch', watchList)
+//     return
+//   }
+//   const index = watchList.findIndex(x => {
+//     return x.id === arg.id
+//   })
+
+//   if(index !== -1) {
+//     watchList.splice(index, 1)
+//   }else {
+//     watchList.push(arg)
+//   }
+//   event.sender.send('watch', watchList)
+// })
+
 // 保持对window对象的全局引用，如果不这么做的话，当JavaScript对象被
 // 垃圾回收的时候，window对象将会自动的关闭
 let win

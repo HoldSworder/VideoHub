@@ -1,20 +1,25 @@
 import React, { useEffect, useState } from 'react'
 import { getFiles, fixVideoInfo, saveVideoData } from '@/script/getProgram'
-import { Card, Input, Select, notification, Modal } from 'antd'
+import { Card, Input, Select, Modal } from 'antd'
 import delProgram from '@/script/delProgram'
 import sort from '@/script/sort.js'
-
-
+import fixVideoLoading from '@/components/getInfoLoading.js'
+import { connect } from 'react-redux'
 import './index.css'
+
+
+const url = require('url')
+const ipc = window.require('electron').ipcRenderer
 
 const InputGroup = Input.Group;
 const {remote} = window.require('electron')
-const {shell, Menu} = remote 
+const {shell, Menu, webContents} = remote 
 const { Meta } = Card
 const { Option } = Select
 
 
-function Index() {
+function Index(props) {
+  const {watchList, addWatch} = props
   const [fileArr, setFiles] = useState([])
   const [showArr, setShow]  = useState([])
 
@@ -55,10 +60,40 @@ function Index() {
       click() {
         setInfo(info)
       }
+    }, {
+      label: '同屏观看',
+      click() {
+        let content = findContent()
+
+        console.log('watch')
+        if(!content) {
+          window.open('/watch')
+          setTimeout(() => {
+            sendWatch()
+          }, 1000)
+        }else {
+          sendWatch()
+        }
+
+        function sendWatch() {
+          content = findContent()
+          ipc.sendTo(content.id, 'watch', info)
+        }
+      }
     }]
 
     const m = Menu.buildFromTemplate(rightTemplate)
     m.popup({window: remote.getCurrentWindow()})
+  }
+
+  function findContent() {
+    const allWebContents = webContents.getAllWebContents()
+    const content = allWebContents.find(x => {
+      const contentURL = x.getURL()
+      if(!contentURL) return false
+      return new URL(x.getURL()).pathname === '/watch'
+    })
+    return content
   }
 
   function searchVideo(e) {
@@ -82,25 +117,7 @@ function Index() {
     setShow(sort(value, fileArr))
   }
 
-  function fixVideoLoading(type) {
-    const key = 'fixVideo'
-    if(type === 'open') {
-      notification['info']({
-        message: '获取视频信息中...',
-        description: '获取视频时长及缩略图片',
-        key,
-        duration: null,
-        placement: "bottomRight"
-      })
-    }else {
-      notification['success']({
-        message: '获取视频信息成功',
-        key,
-        duration: 3,
-        placement: "bottomRight"
-      })
-    }
-  }
+  
 
   function setInfo(info) {
     Modal.info({
@@ -161,4 +178,24 @@ function Index() {
   )
 }
 
-export default Index
+// ipc.on('watch', function(event, arg) {
+//   console.log(event, arg)
+// })
+
+// const stateToProps = state => ({
+//     watchList: state.watchList
+// })
+
+// const dispatchToProps = dispatch => {
+//   return {
+//     addWatch(info) {
+//       let action = {
+//         type: 'add_watch',
+//         val: info
+//       }
+//       dispatch(action)
+//     }
+//   }
+// }
+
+export default connect()(Index)

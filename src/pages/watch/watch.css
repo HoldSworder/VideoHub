@@ -1,0 +1,9 @@
+.playBox {
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+}
+
+.playBox video {
+  margin: 10px;
+}
