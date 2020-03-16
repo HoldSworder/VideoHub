@@ -5,6 +5,7 @@ const fsp = window.require('fs').promises
 const path = window.require('path')
 const dataPath = path.resolve('./data/data.json')
 
+
 const layout = {
   videoFiles: [],
   otherFiles: [],

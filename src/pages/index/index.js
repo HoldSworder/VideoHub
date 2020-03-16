@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { getFiles, fixVideoInfo, saveVideoData } from '@/script/getProgram'
+import { getConfig } from '@/script/handleData/getConfig.js'
 import { Card, Input, Select, Modal } from 'antd'
 import delProgram from '@/script/delProgram'
 import sort from '@/script/sort.js'
@@ -25,19 +26,25 @@ function Index(props) {
 
   useEffect(() => {
     (async () => {
-      const files = await getFiles()
-      setFiles(files)
-      setShow(files)
+      console.log(webContents.getAllWebContents()[0].getURL())
+      await loadVideo()
 
-      fixVideoLoading('open')
-      const fixDurationFiles = await fixVideoInfo(files)
-      setFiles(fixDurationFiles)
-      setShow(fixDurationFiles.filter(x => {
-        return x.canplay === 1
-      }))
-      fixVideoLoading('close')
     })()
   }, [])
+
+  async function loadVideo() {
+    const files = await getFiles()
+    setFiles(files)
+    setShow(files)
+
+    fixVideoLoading('open')
+    const fixDurationFiles = await fixVideoInfo(files)
+    setFiles(fixDurationFiles)
+    setShow(fixDurationFiles.filter(x => {
+      return x.canplay === 1
+    }))
+    fixVideoLoading('close')
+  }
 
   function playVideo(info) {
     shell.openItem(info.file)
@@ -182,20 +189,28 @@ function Index(props) {
 //   console.log(event, arg)
 // })
 
-// const stateToProps = state => ({
-//     watchList: state.watchList
-// })
+const stateToProps = state => ({
+    watchList: state.watchList,
+    filePath: state.filePath
+})
 
-// const dispatchToProps = dispatch => {
-//   return {
-//     addWatch(info) {
-//       let action = {
-//         type: 'add_watch',
-//         val: info
-//       }
-//       dispatch(action)
-//     }
-//   }
-// }
+const dispatchToProps = dispatch => {
+  return {
+    addWatch(info) {
+      let action = {
+        type: 'add_watch',
+        val: info
+      }
+      dispatch(action)
+    },
+    changeFilePath(path) {
+      let action = {
+        type: 'change_filePath',
+        val: path
+      }
+      dispatch(action)
+    }
+  }
+}
 
-export default connect()(Index)
+export default connect(stateToProps, dispatchToProps)(Index)

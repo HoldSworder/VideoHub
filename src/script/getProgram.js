@@ -1,6 +1,6 @@
 import basePath from '@/common/basePath.js'
 import getVideoDuration from '@/script/fixVideo.js'
-import { saveData, readData } from '@/script/handleData.js'
+import { saveData, readData } from '@/script/handleData/handleData.js'
 import { genId } from '@/common/tool.js'
 
 const path = window.require('path')
@@ -15,26 +15,20 @@ let resArr = [...dataObj.videoFiles, ...dataObj.otherFiles]
 let videoNumber = 0
 let wallpaperNumber = 0
 
+/**
+ * 测试文件路径是否存在
+ * @param {*} res 
+ */
 function checkFiles(res = resArr) {
   res.forEach(async(x, index, arr) => {
     try {
       await fse.access(x.file)
     } catch (error) {
       arr.splice(index, 1)
-      console.log(error)
+      // console.log(error)
     }
   })
   return res
-  // return res.filter(async x => {
-  //   if(x.title === '沸羊羊合集2') debugger
-  //   try {
-  //     await fse.access(x.file)
-  //     return true
-  //   } catch (error) {
-  //     console.log(error)
-  //     return false
-  //   }
-  // })
 }
 
 async function getAllVideo(filePath = basePath, res = resArr) {
@@ -86,7 +80,7 @@ async function wallpaperVideo({res, filePath, childPath, stats}) {
   try {
     await fse.access(file)
   } catch (error) {
-    console.log('文件描述地址错误', error)
+    // console.log('文件描述地址错误', error)
     return
   }
 
@@ -173,6 +167,7 @@ async function fixVideoInfo(data) {
 
 async function getFiles() {
   const checked = checkFiles()
+  console.log(basePath)
   const data = await getAllVideo(basePath, checked)
   
   console.log('所有视频的数量为', videoNumber)

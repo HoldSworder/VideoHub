@@ -1,5 +1,5 @@
-const fsp = window.require('fs').promises
-const path = window.require('path')
+// const fsp = window.require('fs').promises
+// const path = window.require('path')
 
 function transTime(time) {
 	time = parseInt(time)

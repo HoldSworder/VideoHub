@@ -1,5 +1,6 @@
 const defaultState = {
-  watchList: ['111']
+  watchList: [],
+  filePath: ''
 }
 
 export default (state = defaultState, action) => {
@@ -8,6 +9,9 @@ export default (state = defaultState, action) => {
       let newState = JSON.parse(JSON.stringify(state))
       newState.watchList.push(action.val)
       return newState
+    case 'change_filePath':
+      return action.val
+      
   }
 
   return state
