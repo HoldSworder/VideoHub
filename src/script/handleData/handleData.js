@@ -5,15 +5,10 @@ const fsp = window.require('fs').promises
 const path = window.require('path')
 const dataPath = path.resolve('./data/data.json')
 
-
-const layout = {
-  videoFiles: [],
-  otherFiles: [],
-  option: {}
-}
+const { dataLayout } = require('@/common/layout.js')
 
 async function saveData(newData, type) {
-  let data = {...layout}
+  let data = {...dataLayout}
 
   switch(type) {
     case 'data':
@@ -39,10 +34,10 @@ function readData() {
   let data
   try {
     data = fs.readFileSync(dataPath, 'utf-8')
-    if(!isJSON(data)) fs.writeFileSync(dataPath, JSON.stringify(layout), 'utf-8')
+    if(!isJSON(data)) fs.writeFileSync(dataPath, JSON.stringify(dataLayout), 'utf-8')
   }catch (err) {
-    fsp.writeFile(dataPath, JSON.stringify(layout), 'utf-8')
-    data = JSON.stringify(layout)
+    fsp.writeFile(dataPath, JSON.stringify(dataLayout), 'utf-8')
+    data = JSON.stringify(dataLayout)
     console.log(err) 
   }
   return JSON.parse(data)

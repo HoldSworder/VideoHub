@@ -1,8 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
+import { CloseOutlined } from '@ant-design/icons';
 import { connect } from 'react-redux'
 import Moveable from 'react-moveable'
-import { Slider } from 'antd';
+import { Slider, Card } from 'antd';
 import { useImmer } from 'use-immer'
+
+import useAbout from '@/hooks/about'
 
 import './watch.css'
 
@@ -13,18 +16,23 @@ function Watch(props) {
   const [watchList, setWatchList] = useImmer([])
   const [playerHeight, setPlayerHeight] = useState(300)
 
+  const playBox = useRef(null)
+
+  const showAbout = useAbout()
+
   useEffect(() => {
     ipc.on('watch', function(event, arg) {
-      console.log(event)
-      console.log('set')
       const newList = setWatch(arg)
-      console.log(newList)
       if(newList) {
         setWatchList(list => {
           list.push(newList)
         })
       }
     })
+
+    return () => {
+      ipc.removeAllListener('watch')
+    }
   }, [])
 
   
@@ -42,23 +50,31 @@ function Watch(props) {
     setPlayerHeight(10 * val)
   }
 
+  function delVideo(id) {
+    setWatchList(state => (
+      state.filter(x => {
+        return x.id !== id
+      })
+    ))
+  }
+
   return (
     <>
       <Slider defaultValue={playerHeight / 10} onChange={changeHeight} />
-    <div className="playBox">
-      {
-        watchList.map(item => {
-          return (
-            <div key={item.id}>
-              <video  className="player"
-                      style={{height: playerHeight + 'px'}}
-                      src={item.file}
-                      controls></video>
-            </div>                      
-          )
-        })
-      }
-    </div>
+      <div className="playBox" ref={playBox}>
+        {
+          watchList.map(item => {
+            return (
+              <Card className='videoCard' key={item.id} title={item.name} data-i={item.id} extra={<a onClick={delVideo.bind(this, item.id)}><CloseOutlined style={{color: "red"}} /></a>}>
+                <video  className="player"
+                        style={{height: playerHeight + 'px'}}
+                        src={item.file}
+                        controls></video>
+              </Card>                      
+            )
+          })
+        }
+      </div>
     </>
   )
 }

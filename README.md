@@ -139,6 +139,33 @@ const focuseWin = webContents.getFocusedWebContents()
 focuseWin.webContents.openDevTools()
 ```
 
+5. 打开调试界面
+```js
+const focuseWin = webContents.getFocusedWebContents()
+focuseWin.webContents.openDevTools()
+```
+
+6. 通信
+```js
+//主进程中只能进行监听 并返回事件
+ipcMain.on('xxx', function(event, arg) {
+  event.sender.send('aaa', list)
+})
+//也可以利用webcontent主动推送事件
+const focuse = BrowserWindow.getFocusedWindow()
+focuse.send('xxx')
+
+//渲染进程中 监听事件
+ipcRenderer.on('xxx', function(event, arg) {
+
+})
+
+ipcRenderer.removeAllListener('xxx')
+
+//渲染进程主动发送事件
+ipcRenderer.send('xxx')
+```
+
 
 ## 遇到的坑
 
@@ -146,9 +173,14 @@ focuseWin.webContents.openDevTools()
 
 2. react中的重复渲染问题
 
-在react中使用useState定义复杂对象时（对象、数组），改变state会导致state重新指向新的对象，导致页面依赖的dom重新刷新。
+  在react中使用useState定义复杂对象时（对象、数组），改变state会导致state重新指向新的对象，导致页面依赖的dom重新刷新。
 
-使用immer、useImmer替代useState可以解决这个问题
+  使用immer、useImmer替代useState可以解决这个问题
 
 3. react-electron中ipcRenderer重复callback的问题
 
+  放在useEffact中 只运行一次即可
+
+4. 跨渲染进程无法共用redux 
+
+  可以通过跨进程通信方法解决

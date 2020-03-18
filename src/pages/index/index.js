@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { getFiles, fixVideoInfo, saveVideoData } from '@/script/getProgram'
-import { getConfig } from '@/script/handleData/getConfig.js'
-import { Card, Input, Select, Modal } from 'antd'
+import { saveConfig } from '@/script/handleData/handleConfig.js'
+import { Card, Input, Select, Modal, Button } from 'antd'
 import delProgram from '@/script/delProgram'
 import sort from '@/script/sort.js'
 import fixVideoLoading from '@/components/getInfoLoading.js'
 import { connect } from 'react-redux'
 import './index.css'
+import useAbout from '@/hooks/about'
 
 
 const url = require('url')
@@ -14,7 +15,7 @@ const ipc = window.require('electron').ipcRenderer
 
 const InputGroup = Input.Group;
 const {remote} = window.require('electron')
-const {shell, Menu, webContents} = remote 
+const {shell, Menu, webContents, dialog} = remote 
 const { Meta } = Card
 const { Option } = Select
 
@@ -24,13 +25,26 @@ function Index(props) {
   const [fileArr, setFiles] = useState([])
   const [showArr, setShow]  = useState([])
 
+  const showAbout = useAbout()
+
+  useEffect(() => {
+    ipc.on('setVideoFile', function(event, arg) {
+      setFiles([])
+      loadVideo()
+    })
+
+    return () => {
+      ipc.removeAllListener('setVideoFile')
+    }
+  }, [])
+
   useEffect(() => {
     (async () => {
-      console.log(webContents.getAllWebContents()[0].getURL())
       await loadVideo()
-
     })()
   }, [])
+
+
 
   async function loadVideo() {
     const files = await getFiles()
@@ -124,6 +138,19 @@ function Index(props) {
     setShow(sort(value, fileArr))
   }
 
+  function chooseFile() {
+    dialog.showOpenDialog({
+      title: '选择视频文件夹',
+      properties: ['openFile', 'openDirectory']
+    }).then(res => {
+        saveConfig({
+            dirPath: res.filePaths[0]
+        })
+
+        setFiles([])
+        loadVideo()
+    })
+  }
   
 
   function setInfo(info) {
@@ -140,54 +167,64 @@ function Index(props) {
       onOk() {},
     });
   }
+  
 
   return (
     <div className="container">
-      <div className="header">
-        <Input 
-          placeholder="输入关键字进行搜索"
-          onChange={searchVideo}
-          style={{ width: 200 }} />
+      
+        <div style={{display: fileArr.length === 0 ? 'block' : 'none'}}>
+          <Button type="primary" onClick={chooseFile}>选择文件夹开始</Button>
+        </div>
+      
 
-        <InputGroup
-          style={{ width: 'auto' }}>
-          <Select defaultValue="default"
-            onChange={sortFiles}>
-            <Option value="default">默认排序</Option>
-            <Option value="TIME POSITIVE">日期升序</Option>
-            <Option value="TIME NEGATIVE">日期降序</Option>
-            <Option value="DURATION POSITIVE">时长升序</Option>
-            <Option value="DURATION NEGATIVE">时长降序</Option>
-            <Option value="CAN NOT PLAY">特殊文件</Option>
-            <Option value="ERROR">错误文件</Option>
-          </Select>
-        </InputGroup>
-      </div>
-      <div className="videoBox">
-        {
-          showArr.map((item, index) => {
-            return (
+      <div style={{display: fileArr.length === 0 ? 'none' : 'block'}}>
+        
+        <div className="header">
+          <Input 
+            placeholder="输入关键字进行搜索"
+            onChange={searchVideo}
+            style={{ width: 200 }} />
 
-                <Card 
-                  className="card"
-                  style={{ width: 240 }}
-                  cover={<img alt={item.title} src={item.img} />}
-                  key={index}
-                  onContextMenu={delVideo.bind(this, item)}
-                  onDoubleClick={playVideo.bind(this, item)}> 
-                  <Meta title={item.title} description={item.duration}></Meta>
-                </Card>
-            )
-          })
-        }
+          <InputGroup
+            style={{ width: 'auto' }}>
+            <Select defaultValue="default"
+              onChange={sortFiles}>
+              <Option value="default">默认排序</Option>
+              <Option value="TIME POSITIVE">日期升序</Option>
+              <Option value="TIME NEGATIVE">日期降序</Option>
+              <Option value="DURATION POSITIVE">时长升序</Option>
+              <Option value="DURATION NEGATIVE">时长降序</Option>
+              <Option value="CAN NOT PLAY">特殊文件</Option>
+              <Option value="ERROR">错误文件</Option>
+            </Select>
+          </InputGroup>
+        </div>
+        <div className="videoBox">
+          {
+            showArr.map((item, index) => {
+              return (
+
+                  <Card 
+                    className="card"
+                    style={{ width: 240 }}
+                    cover={<img alt={item.title} src={item.img} />}
+                    key={index}
+                    onContextMenu={delVideo.bind(this, item)}
+                    onDoubleClick={playVideo.bind(this, item)}> 
+                    <Meta title={item.title} description={item.duration}></Meta>
+                  </Card>
+              )
+            })
+          }
+        </div>
+      
       </div>
     </div>
   )
 }
 
-// ipc.on('watch', function(event, arg) {
-//   console.log(event, arg)
-// })
+
+
 
 const stateToProps = state => ({
     watchList: state.watchList,

@@ -22,10 +22,11 @@ function transTime(time) {
 }
 
 function isJSON(str) {
-  if (typeof str == 'string') {
+  console.log(typeof str)
+  if (typeof str === 'string') {
       try {
-          var obj=JSON.parse(str);
-          if(typeof obj == 'object' && obj ){
+          var obj = JSON.parse(str);
+          if(typeof obj === 'object' && obj ){
               return true;
           }else{
               return false;
@@ -37,6 +38,7 @@ function isJSON(str) {
       }
   }
   console.log('It is not a string!')
+  return false
 }
 
 function genId(randomLength = 5) {

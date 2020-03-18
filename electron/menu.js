@@ -1,6 +1,5 @@
-const { saveConfig } = require('./script/handleConfig')
+const { saveConfig, resetData } = require('./script/handleConfig')
 const path = require('path')
-const configPath = path.resolve('./data/config.json')
 const electron = require('electron')
 const { Menu, app, webContents, BrowserWindow, ipcMain, dialog } = electron
 const fsp = require('fs').promises
@@ -8,12 +7,6 @@ const fsp = require('fs').promises
 const template = [{
     label: '设置',
     submenu: [{
-        label: '打开调试窗口',
-        click() {
-            const focuseWin = webContents.getFocusedWebContents()
-            focuseWin.webContents.openDevTools()
-        }
-    }, {
         label: '选择文件夹路径',
         click() {
             dialog.showOpenDialog({
@@ -24,18 +17,33 @@ const template = [{
                     dirPath: res.filePaths[0]
                 })
 
-                const mainWindow = webContents.getAllWebContents()[0]
-                mainWindow.send('setVideoFile')
+                const focuse = BrowserWindow.getFocusedWindow()
+                focuse.send('setVideoFile')
             })
+        }
+    }, {
+        label: '清空视频信息',
+        click() {
+            resetData()
+            
+            const focuse = BrowserWindow.getFocusedWindow()
+            focuse.send('setVideoFile')
+        }
+    }, {
+        label: '打开调试窗口',
+        click() {
+            const focuseWin = webContents.getFocusedWebContents()
+            focuseWin.webContents.openDevTools()
         }
     }]
 }, {
-    label: 'test2',
+    label: '关于',
     submenu: [{
-      label: 'test22',
-      click() {
-          
-      }
+        label: '关于作者',
+        click() {
+            const focuse = BrowserWindow.getFocusedWindow()
+            focuse.send('showAbout')
+        }
     }]
 }]
 

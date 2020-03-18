@@ -1,11 +1,12 @@
+const { dataPath, configPath } = require('../../src/common/dataPath.js')
+const { configLayout, dataLayout } = require('../../src/common/layout.js')
+
+
 const fs = require('fs')
 const fsp = require('fs').promises
 const path = require('path')
-const configPath = path.resolve('./data/config.json')
 
-const layout = {
-  dirPath: ''
-}
+
 
 function saveConfig(newData) {
   const oldData = readConfig()
@@ -23,13 +24,27 @@ function readConfig() {
   let data
   try {
     data = fs.readFileSync(configPath, 'utf-8')
-    if(!isJSON(data)) fs.writeFileSync(configPath, JSON.stringify(layout), 'utf-8')
+    if(!isJSON(data)) fs.writeFileSync(configPath, JSON.stringify(configLayout), 'utf-8')
   }catch (err) {
-    fs.writeFileSync(configPath, JSON.stringify(layout), 'utf-8')
-    data = JSON.stringify(layout)
+    fs.writeFileSync(configPath, JSON.stringify(configLayout), 'utf-8')
+    data = JSON.stringify(configLayout)
     console.log(err) 
   }
   return JSON.parse(data)
+}
+
+function resetData() {
+  let data = {...dataLayout}
+  let config = {...configLayout}
+
+  const str = JSON.stringify(data)
+  const configStr = JSON.stringify(config)
+  try {
+     fs.writeFileSync(dataPath, str, 'utf-8')
+     fs.writeFileSync(configPath, configStr, 'utf-8')
+  } catch (error) {
+    throw error
+  }
 }
 
 function isJSON(str) {
@@ -50,4 +65,4 @@ function isJSON(str) {
   console.log('It is not a string!')
 }
 
-module.exports = {saveConfig, readConfig}
+module.exports = {saveConfig, readConfig, resetData}

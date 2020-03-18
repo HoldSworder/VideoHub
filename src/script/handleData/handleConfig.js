@@ -4,17 +4,14 @@ const fs = window.require('fs')
 const fsp = window.require('fs').promises
 const path = window.require('path')
 const configPath = path.resolve('./data/config.json')
-
-const layout = {
-  dirPath: ''
-}
+const { configLayout } = require('@/common/layout.js')
 
 function saveConfig(newData) {
-  let data = {...layout, ...newData}
+  let data = {...configLayout, ...newData}
 
   const str = JSON.stringify(data)
   try {
-     fsp.writeFile(configPath, str, 'utf-8')
+     fs.writeFileSync(configPath, str, 'utf-8')
   } catch (error) {
     throw error
   }
@@ -24,13 +21,14 @@ function readConfig() {
   let data
   try {
     data = fs.readFileSync(configPath, 'utf-8')
-    if(!isJSON(data)) fs.writeFileSync(configPath, JSON.stringify(layout), 'utf-8')
+    if(!isJSON(data)) fs.writeFileSync(configPath, JSON.stringify(configLayout), 'utf-8')
   }catch (err) {
-    fsp.writeFile(configPath, JSON.stringify(layout), 'utf-8')
-    data = JSON.stringify(layout)
+    fsp.writeFile(configPath, JSON.stringify(configLayout), 'utf-8')
+    data = JSON.stringify(configLayout)
     console.log(err) 
-    return layout
+    return configLayout
   }
+  if(data === '') return configLayout
   return JSON.parse(data)
 }
 

@@ -1,4 +1,4 @@
-import basePath from '@/common/basePath.js'
+import getBasePath from '@/common/basePath.js'
 import getVideoDuration from '@/script/fixVideo.js'
 import { saveData, readData } from '@/script/handleData/handleData.js'
 import { genId } from '@/common/tool.js'
@@ -6,10 +6,11 @@ import { genId } from '@/common/tool.js'
 const path = window.require('path')
 const fse = window.require('fs-extra')
 
-const videoType = ['mp4', 'avi', 'rmvb', 'flv', 'wmv', 'mov', 'mtv', 'amv']
+const videoType = ['mp4', 'avi', 'rmvb', 'flv', 'wmv', 'mov', 'mtv', 'amv', 'mkv']
 const videoFix = fixType(videoType)
-const dataObj = readData()
-let resArr = [...dataObj.videoFiles, ...dataObj.otherFiles]
+
+// const dataObj = readData()
+// let resArr = [...dataObj.videoFiles, ...dataObj.otherFiles]
 // let option = dataObj.option
 
 let videoNumber = 0
@@ -19,8 +20,11 @@ let wallpaperNumber = 0
  * 测试文件路径是否存在
  * @param {*} res 
  */
-function checkFiles(res = resArr) {
-  res.forEach(async(x, index, arr) => {
+function checkFiles() {
+  const dataObj = readData()
+  let resArr = [...dataObj.videoFiles, ...dataObj.otherFiles]
+
+  resArr.forEach(async(x, index, arr) => {
     try {
       await fse.access(x.file)
     } catch (error) {
@@ -28,10 +32,10 @@ function checkFiles(res = resArr) {
       // console.log(error)
     }
   })
-  return res
+  return resArr
 }
 
-async function getAllVideo(filePath = basePath, res = resArr) {
+async function getAllVideo(filePath, res) {
 
   const fileArr = await fse.readdir(filePath)
 
@@ -167,8 +171,8 @@ async function fixVideoInfo(data) {
 
 async function getFiles() {
   const checked = checkFiles()
-  console.log(basePath)
-  const data = await getAllVideo(basePath, checked)
+  const filePath = getBasePath()
+  const data = await getAllVideo(filePath, checked)
   
   console.log('所有视频的数量为', videoNumber)
   console.log('wallpaper视频的数量为', wallpaperNumber)
