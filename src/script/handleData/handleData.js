@@ -34,7 +34,10 @@ function readData() {
   let data
   try {
     data = fs.readFileSync(dataPath, 'utf-8')
-    if(!isJSON(data)) fs.writeFileSync(dataPath, JSON.stringify(dataLayout), 'utf-8')
+    if(!isJSON(data)) {
+      fs.writeFileSync(dataPath, JSON.stringify(dataLayout), 'utf-8')
+      console.log('ERROR: is not JSON')
+    }
   }catch (err) {
     fsp.writeFile(dataPath, JSON.stringify(dataLayout), 'utf-8')
     data = JSON.stringify(dataLayout)

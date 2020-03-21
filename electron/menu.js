@@ -13,12 +13,15 @@ const template = [{
                 title: '选择视频文件夹',
                 properties: ['openFile', 'openDirectory']
             }).then(res => {
+                if(!res.filePaths[0]) return
                 saveConfig({
                     dirPath: res.filePaths[0]
                 })
-
+                
                 const focuse = BrowserWindow.getFocusedWindow()
                 focuse.send('setVideoFile')
+            }).catch(err => {
+                console.log(err)
             })
         }
     }, {

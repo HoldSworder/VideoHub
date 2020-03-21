@@ -23,6 +23,7 @@ function Watch(props) {
   useEffect(() => {
     ipc.on('watch', function(event, arg) {
       const newList = setWatch(arg)
+      console.log(newList)
       if(newList) {
         setWatchList(list => {
           list.push(newList)

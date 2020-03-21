@@ -30,6 +30,7 @@ function Index(props) {
   useEffect(() => {
     ipc.on('setVideoFile', function(event, arg) {
       setFiles([])
+      setShow([])
       loadVideo()
     })
 
@@ -86,18 +87,22 @@ function Index(props) {
       click() {
         let content = findContent()
 
-        console.log('watch')
+        console.log(content)
         if(!content) {
-          window.open('/watch')
+          const focuse = webContents.getFocusedWebContents()
+          const focuseURL = focuse.getURL()
+          console.log(focuseURL)
+          window.open(focuseURL + 'watch')
           setTimeout(() => {
             sendWatch()
           }, 1000)
         }else {
           sendWatch()
         }
-
+        
         function sendWatch() {
           content = findContent()
+          console.log(content)
           ipc.sendTo(content.id, 'watch', info)
         }
       }
@@ -109,10 +114,15 @@ function Index(props) {
 
   function findContent() {
     const allWebContents = webContents.getAllWebContents()
+    console.log(allWebContents)
+    for (const item of allWebContents) {
+      console.log(item.getURL())
+    }
     const content = allWebContents.find(x => {
       const contentURL = x.getURL()
       if(!contentURL) return false
-      return new URL(x.getURL()).pathname === '/watch'
+      console.log(contentURL)
+      return new URL(x.getURL()).hash === '#/watch'
     })
     return content
   }

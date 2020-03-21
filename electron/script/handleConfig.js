@@ -1,5 +1,5 @@
-const { dataPath, configPath } = require('../../src/common/dataPath.js')
-const { configLayout, dataLayout } = require('../../src/common/layout.js')
+const { dataPath, configPath } = require('./dataPath.js')
+const { configLayout, dataLayout } = require('./layout.js')
 
 
 const fs = require('fs')
@@ -16,6 +16,12 @@ function saveConfig(newData) {
   try {
      fsp.writeFile(configPath, str, 'utf-8')
   } catch (error) {
+    try {
+      fs.mkdirSync(path.resolve('./data'))
+      fsp.writeFile(configPath, str, 'utf-8')
+    } catch(err) {
+      console.log(err) 
+    }
     throw error
   }
 }

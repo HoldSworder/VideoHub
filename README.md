@@ -86,85 +86,141 @@ app.on('activate', () => {
 
 使用**npm run electron**跑起服务
 
+## 打包项目
+
+1. 修改main.js中loadURL
+    ```js
+
+    // 加载应用----react 打包
+    mainWindow.loadURL(url.format({
+      pathname: path.join(__dirname, './build/index.html'),
+      protocol: 'file:',
+      slashes: true
+    }))
+    ```
+
+2. 修改webpack
+
+    ```js
+    //添加homepage属性
+    "homepage": "."
+    ```
+
+3. 进行打包
+
+        npm run build
+
+4. 打包electron
+    ```js
+    // knownsec-fed目录下安装electron-packager包
+    npm install electron-packager --save-dev
+    // 安装electron-packager命令
+    npm install electron-packager -g
+    ```
+        electron-packager <location of project> <name of project> <platform> <architecture> <electron version> <optional options>
+
+    * location of project: 项目的本地地址，此处我这边是 ~/knownsec-fed
+    * location of project: 项目名称，此处是 knownsec-fed
+    * platform: 打包成的平台
+    * architecture: 使用 x86 还是 x64 还是两个架构都用
+    * electron version: electron 的版本
+
+    ```js
+    //配置package.json
+    "packager": "electron-packager ./ videoHub --all --out ./outputs"
+
+    npm run packager
+    ```
+
+    第一次使用npm run packager时会下载打包所需的文件会非常慢 使用淘宝镜像可解决
+    ```js
+    npm config set ELECTRON_MIRROR http://npm.taobao.org/mirrors/electron/
+    //但是下载时会指向 http://npm.taobao.org/mirrors/electron/v8.0.2 淘宝实际地址并没有v
+    //所以还需要执行
+    npm config set electron_custom_dir "8.0.2"
+    ```
+   
+
+
 ## 开发过程
 
 1. 使用shell模块以默认方式打开文件
 
-```js
-const shell = require('shell)
-shell.openItem(fullPath)
-```
+    ```js
+    const shell = require('shell)
+    shell.openItem(fullPath)
+    ```
 
 2. 使用remote在组件中引入electron
 
-除了main.js为主进程以外 其他页面均为渲染进程 需要使用remote模块调用主进程的方法
-```js
-const {shell} = require('electron')
-import {shell} from 'electron'
-// 都无效时 可以试试
+    除了main.js为主进程以外 其他页面均为渲染进程 需要使用remote模块调用主进程的方法
+    ```js
+    const {shell} = require('electron')
+    import {shell} from 'electron'
+    // 都无效时 可以试试
 
-const {shell} = window.require('electron').remote
-```
+    const {shell} = window.require('electron').remote
+    ```
 
 3. 使用react-app-rewired修改webpack配置
 
-在没有改动初始文件的时候 可以使用**npm run eject**来得到webpack.config.js文件
+    在没有改动初始文件的时候 可以使用**npm run eject**来得到webpack.config.js文件
 
-```js
-//npm i react-app-rewired -S-D
-//修改package.json
-"start": "react-app-rewired start"
+    ```js
+    //npm i react-app-rewired -S-D
+    //修改package.json
+    "start": "react-app-rewired start"
 
-//根目录新建config-overrides.js 配置webpack
-const path = require('path')
+    //根目录新建config-overrides.js 配置webpack
+    const path = require('path')
 
-function resolve (dir) {
-  return path.join(__dirname, '.', dir)
-}
+    function resolve (dir) {
+      return path.join(__dirname, '.', dir)
+    }
 
-module.exports = function override(config, env) {
+    module.exports = function override(config, env) {
 
-  config.resolve.alias = {
-    "@": resolve('src')
-  }
+      config.resolve.alias = {
+        "@": resolve('src')
+      }
 
-  return config;
-}
-```
+      return config;
+    }
+    ```
 
 4. 获取当前窗口
 
-```js
-const focuseWin = webContents.getFocusedWebContents()
-focuseWin.webContents.openDevTools()
-```
+    ```js
+    const focuseWin = webContents.getFocusedWebContents()
+    focuseWin.webContents.openDevTools()
+    ```
 
 5. 打开调试界面
-```js
-const focuseWin = webContents.getFocusedWebContents()
-focuseWin.webContents.openDevTools()
-```
+    ```js
+    const focuseWin = webContents.getFocusedWebContents()
+    focuseWin.webContents.openDevTools()
+    ```
 
 6. 通信
-```js
-//主进程中只能进行监听 并返回事件
-ipcMain.on('xxx', function(event, arg) {
-  event.sender.send('aaa', list)
-})
-//也可以利用webcontent主动推送事件
-const focuse = BrowserWindow.getFocusedWindow()
-focuse.send('xxx')
+    ```js
+    //主进程中只能进行监听 并返回事件
+    ipcMain.on('xxx', function(event, arg) {
+      event.sender.send('aaa', list)
+    })
+    //也可以利用webcontent主动推送事件
+    const focuse = BrowserWindow.getFocusedWindow()
+    focuse.send('xxx')
 
-//渲染进程中 监听事件
-ipcRenderer.on('xxx', function(event, arg) {
+    //渲染进程中 监听事件
+    ipcRenderer.on('xxx', function(event, arg) {
 
-})
+    })
 
-ipcRenderer.removeAllListener('xxx')
+    ipcRenderer.removeAllListener('xxx')
 
-//渲染进程主动发送事件
-ipcRenderer.send('xxx')
-```
+    //渲染进程主动发送事件
+    ipcRenderer.send('xxx')
+    ```
 
 
 ## 遇到的坑

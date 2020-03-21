@@ -4,7 +4,8 @@ import { saveData, readData } from '@/script/handleData/handleData.js'
 import { genId } from '@/common/tool.js'
 
 const path = window.require('path')
-const fse = window.require('fs-extra')
+const fse = window.require('fs').promises
+// const fse = window.require('fs-extra')
 
 const videoType = ['mp4', 'avi', 'rmvb', 'flv', 'wmv', 'mov', 'mtv', 'amv', 'mkv']
 const videoFix = fixType(videoType)
@@ -36,7 +37,6 @@ function checkFiles() {
 }
 
 async function getAllVideo(filePath, res) {
-
   const fileArr = await fse.readdir(filePath)
 
   for (const item of fileArr) {

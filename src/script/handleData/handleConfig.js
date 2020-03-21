@@ -13,7 +13,13 @@ function saveConfig(newData) {
   try {
      fs.writeFileSync(configPath, str, 'utf-8')
   } catch (error) {
-    throw error
+    try {
+      fs.mkdirSync(path.resolve('./data'))
+      fs.writeFileSync(configPath, str, 'utf-8')
+    } catch(err) {
+      console.log(err) 
+    }
+    console.log(error) 
   }
 }
 
