@@ -88,29 +88,31 @@ app.on('activate', () => {
 
 ## 打包项目
 
-1. 修改main.js中loadURL
+1. 进行react打包
+
+        npm run build
+
+2. 修改main.js中loadURL
     ```js
 
     // 加载应用----react 打包
     mainWindow.loadURL(url.format({
-      pathname: path.join(__dirname, './build/index.html'),
+      pathname: path.join(__dirname, './index.html'),
       protocol: 'file:',
       slashes: true
     }))
     ```
 
-2. 修改webpack
+3. 修改webpack
 
     ```js
     //添加homepage属性
     "homepage": "."
     ```
 
-3. 进行打包
+4. 将electron的mian.js和相关js 以及package.json和build的打包内容放到一起 或者直接放到build文件夹下
 
-        npm run build
-
-4. 打包electron
+5. 打包electron
     ```js
     // knownsec-fed目录下安装electron-packager包
     npm install electron-packager --save-dev
@@ -223,6 +225,9 @@ app.on('activate', () => {
     ```
 
 
+
+
+
 ## 遇到的坑
 
 1. 视频名中带有'#'的视频会提示无法找到 只能跳过处理
@@ -240,3 +245,7 @@ app.on('activate', () => {
 4. 跨渲染进程无法共用redux 
 
   可以通过跨进程通信方法解决
+
+5. 如果遇到打包后白屏
+
+  可能是因为 router只支持hash模式
