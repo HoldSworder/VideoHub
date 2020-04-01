@@ -22,7 +22,6 @@ function transTime(time) {
 }
 
 function isJSON(str) {
-  console.log(typeof str)
   if (typeof str === 'string') {
       try {
           var obj = JSON.parse(str);
@@ -45,4 +44,20 @@ function genId(randomLength = 5) {
     return Number(Math.random().toString().substr(2, randomLength) + Date.now()).toString(36)
 }
 
-export { isJSON, transTime, genId }
+function shuffle(arr) {
+  let m = arr.length, //未交换的最后一位
+      t,  //
+      i
+  
+  while(m) {
+    m --
+    i = Math.floor(Math.random() * m)
+    t = arr[i]
+    arr[i] = arr[m]
+    arr[m] = t
+  }
+
+  return arr
+}
+
+export { isJSON, transTime, genId, shuffle }

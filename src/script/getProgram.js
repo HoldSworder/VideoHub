@@ -17,6 +17,8 @@ const videoFix = fixType(videoType)
 let videoNumber = 0
 let wallpaperNumber = 0
 
+let result = []
+
 /**
  * 测试文件路径是否存在
  * @param {*} res 
@@ -24,6 +26,7 @@ let wallpaperNumber = 0
 function checkFiles() {
   const dataObj = readData()
   let resArr = [...dataObj.videoFiles, ...dataObj.otherFiles]
+  console.log(resArr)
 
   resArr.forEach(async(x, index, arr) => {
     try {
@@ -36,7 +39,7 @@ function checkFiles() {
   return resArr
 }
 
-async function getAllVideo(filePath, res) {
+async function getAllVideo(filePath, res = result) {
   const fileArr = await fse.readdir(filePath)
 
   for (const item of fileArr) {
@@ -133,7 +136,7 @@ async function wallpaperVideo({res, filePath, childPath, stats}) {
 }
 
 async function video({res, filePath, childPath, baseName, stats}) {
-
+  console.log(res)
   const target = res.find(x => {
     return x.file === childPath
   })
@@ -170,9 +173,13 @@ async function fixVideoInfo(data) {
 }
 
 async function getFiles() {
+  videoNumber = 0
+  wallpaperNumber = 0
+  
   const checked = checkFiles()
   const filePath = getBasePath()
-  const data = await getAllVideo(filePath, checked)
+  result = checked
+  const data = await getAllVideo(filePath)
   
   console.log('所有视频的数量为', videoNumber)
   console.log('wallpaper视频的数量为', wallpaperNumber)

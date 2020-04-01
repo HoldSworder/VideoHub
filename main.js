@@ -33,8 +33,8 @@ let win
 function createWindow() {
   // 创建浏览器窗口。
   win = new BrowserWindow({
-    width: 800,
-    height: 600,
+    width: 1500,
+    height: 1000,
     webPreferences: {
       nodeIntegration: true,
       webSecurity: false
@@ -42,11 +42,11 @@ function createWindow() {
   })
  
   // 打包应用
-  win.loadURL(url.format({
-    pathname: path.join(__dirname, './build/index.html'),
-    protocol: 'file:',
-    slashes: true
-  }))
+  // win.loadURL(url.format({
+  //   pathname: path.join(__dirname, './build/index.html'),
+  //   protocol: 'file:',
+  //   slashes: true
+  // }))
 
   // 加载应用
   // win.loadURL(url.format({
@@ -56,7 +56,7 @@ function createWindow() {
   // }))
   
   // 加载应用----适用于 react 开发时项目
-  //  win.loadURL("http://localhost:3000")
+   win.loadURL("http://localhost:3000")
    
   // 打开开发者工具
   win.webContents.openDevTools()

@@ -1,0 +1,15 @@
+#flowBox {
+  width: 100vw;
+  height: 100vh;
+}
+
+.videoItem {
+  width: 1024px;
+  height: 576px;
+}
+
+#videoBox {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
