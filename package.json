@@ -5,11 +5,16 @@
   "private": true,
   "main": "main.js",
   "homepage": ".",
+  "publish": [{
+    "provider": "generic",
+    "url": "http://qzran.cn"
+  }],
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.4.1",
     "@testing-library/user-event": "^7.2.1",
     "antd": "^4.0.0",
+    "electron-updater": "^4.3.1",
     "immer": "^6.0.1",
     "react": "^16.13.0",
     "react-app-rewired": "^2.1.5",
@@ -27,6 +32,7 @@
     "fs-extra": "^9.0.0"
   },
   "scripts": {
+    "dev": "npm run start && npm run electron",
     "start": "react-app-rewired start",
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",

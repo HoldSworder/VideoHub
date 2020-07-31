@@ -5,7 +5,7 @@ import { Card, Input, Select, Modal, Button } from 'antd'
 import delProgram from '@/script/delProgram'
 import sort from '@/script/sort.js'
 import fixVideoLoading from '@/components/getInfoLoading.js'
-import { connect } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import './index.css'
 import useAbout from '@/hooks/about'
 
@@ -20,10 +20,13 @@ const { Meta } = Card
 const { Option } = Select
 
 
-function Index(props) {
+export default function Index(props) {
   const {watchList, addWatch} = props
   const [fileArr, setFiles] = useState([])
   const [showArr, setShow]  = useState([])
+  const watchListHooks = useSelector(state => state.video.videoList)
+  const filePathHooks = useSelector(state => state.video.filePath)
+  const dispatch = useDispatch()
 
   const showAbout = useAbout()
 
@@ -64,11 +67,23 @@ function Index(props) {
     setShow(files)
 
     fixVideoLoading('open')
+
     const fixDurationFiles = await fixVideoInfo(files)
     setFiles(fixDurationFiles)
     setShow(fixDurationFiles.filter(x => {
       return x.canplay === 1
     }))
+    console.log(watchListHooks, filePathHooks)
+    dispatch({
+      type: 'add_watch',
+      val: fixDurationFiles
+    })
+    dispatch({
+      type: 'change_filePath',
+      val: '111'
+    })
+    console.log(watchListHooks, filePathHooks)
+
     fixVideoLoading('close')
   }
 
@@ -169,7 +184,6 @@ function Index(props) {
         loadVideo()
     })
   }
-  
 
   function setInfo(info) {
     Modal.info({
@@ -244,28 +258,28 @@ function Index(props) {
 
 
 
-const stateToProps = state => ({
-    watchList: state.watchList,
-    filePath: state.filePath
-})
+// const stateToProps = state => ({
+//     watchList: state.watchList,
+//     filePath: state.filePath
+// })
 
-const dispatchToProps = dispatch => {
-  return {
-    addWatch(info) {
-      let action = {
-        type: 'add_watch',
-        val: info
-      }
-      dispatch(action)
-    },
-    changeFilePath(path) {
-      let action = {
-        type: 'change_filePath',
-        val: path
-      }
-      dispatch(action)
-    }
-  }
-}
+// const dispatchToProps = dispatch => {
+//   return {
+//     addWatch(info) {
+//       let action = {
+//         type: 'add_watch',
+//         val: info
+//       }
+//       dispatch(action)
+//     },
+//     changeFilePath(path) {
+//       let action = {
+//         type: 'change_filePath',
+//         val: path
+//       }
+//       dispatch(action)
+//     }
+//   }
+// }
 
-export default connect(stateToProps, dispatchToProps)(Index)
+// export default connect(stateToProps, dispatchToProps)(Index)

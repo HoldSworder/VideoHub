@@ -1,6 +1,8 @@
-import { createStore } from 'redux'
-import reducer from './reducer'
+import { createStore, combineReducers } from 'redux'
+import video from './video'
 
-const store = createStore(reducer)
+const rootReducers = combineReducers({video})
+
+const store = createStore(rootReducers)
 
 export default store
