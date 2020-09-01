@@ -2,14 +2,14 @@ import React, { useEffect, useState, useRef } from 'react'
 import { CloseOutlined } from '@ant-design/icons';
 import { connect } from 'react-redux'
 import Moveable from 'react-moveable'
-import { Slider, Card } from 'antd';
+import { Slider, Card, Typography } from 'antd';
 import { useImmer } from 'use-immer'
 
 import useAbout from '@/hooks/about'
 
 import './watch.css'
 
-
+const { Text } = Typography
 const ipc = window.require('electron').ipcRenderer
 
 function Watch(props) {
@@ -76,6 +76,7 @@ function Watch(props) {
           })
         }
       </div>
+      <Text type="danger" style={{display: watchList.length == 0 ? 'block' : 'none'}}>请在主页右键选择视频进行播放</Text>
     </>
   )
 }

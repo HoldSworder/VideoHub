@@ -5,7 +5,7 @@ const { Menu, app, webContents, BrowserWindow, ipcMain, dialog } = electron
 const fsp = require('fs').promises
 
 const template = [{
-    label: '视频流',
+    label: '视频流模式',
     click() {
         const focuse = webContents.getFocusedWebContents()
         const focuseURL = focuse.getURL()
@@ -22,6 +22,25 @@ const template = [{
             }
         })
         win.loadURL(focuseURL + 'flow')
+    }
+}, {
+    label: '同屏播放模式',
+    click() {
+        const focuse = webContents.getFocusedWebContents()
+        const focuseURL = focuse.getURL()
+        
+        const content = findContent('watch')
+        if(content) return
+
+        let win = new BrowserWindow({
+            width: 1500,
+            height: 1000,
+            webPreferences: {
+              nodeIntegration: true,
+              webSecurity: false
+            }
+        })
+        win.loadURL(focuseURL + 'watch')
     }
 }, {
     label: '设置',
@@ -66,6 +85,12 @@ const template = [{
         click() {
             const focuse = BrowserWindow.getFocusedWindow()
             focuse.send('showAbout')
+        }
+    }, {
+        label: '资助作者',
+        click() {
+            const focuse = BrowserWindow.getFocusedWindow()
+            focuse.send('showSponsor')
         }
     }]
 }]

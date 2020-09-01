@@ -1,4 +1,5 @@
 import { saveConfig, readConfig } from '@/script/handleData/handleConfig.js'
+import { getWallpaper } from '@/components/getInfoLoading.js'
 
 const path = window.require('path')
 const fs = window.require('fs')
@@ -11,6 +12,7 @@ function getBasePath() {
     const nowPath = path.resolve('./')
     if(nowPath.includes(431960)) {
       BasePath = nowPath.slice(0, nowPath.indexOf(431960) + 6)
+      getWallpaper()
     }else {
       BasePath = nowPath
     }

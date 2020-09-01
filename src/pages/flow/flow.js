@@ -3,6 +3,7 @@ import { readData } from '@/script/handleData/handleData.js'
 import { shuffle } from '@/common/tool.js'
 import { useImmer } from 'use-immer'
 import { Spin, Card } from 'antd';
+import useAbout from '@/hooks/about'
 import './flow.css'
 
 const Flow = () => {
@@ -17,6 +18,8 @@ const Flow = () => {
   const [nowPlay, setNowPlay] = useState()
   // const [playArr, setPlay] = useState([])
   // let nowPlay
+
+  useAbout()
 
   useEffect(() => {
     fileArrRef.current = fileArr

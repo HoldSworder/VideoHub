@@ -4,7 +4,7 @@ import { saveConfig } from '@/script/handleData/handleConfig.js'
 import { Card, Input, Select, Modal, Button } from 'antd'
 import delProgram from '@/script/delProgram'
 import sort from '@/script/sort.js'
-import fixVideoLoading from '@/components/getInfoLoading.js'
+import { fixVideoLoading, getVideoLoading } from '@/components/getInfoLoading.js'
 import { connect } from 'react-redux'
 import './index.css'
 import useAbout from '@/hooks/about'
@@ -59,7 +59,10 @@ function Index(props) {
 
 
   async function loadVideo() {
+    getVideoLoading('open')
     const files = await getFiles()
+    getVideoLoading('close')
+
     setFiles(files)
     setShow(files)
 
